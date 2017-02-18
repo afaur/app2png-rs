@@ -1,7 +1,19 @@
+extern crate image;
 extern crate icns;
+
 use icns::{IconFamily, IconType};
 use std::fs::File;
+use std::path::Path;
 use std::io::{BufReader, BufWriter};
+
+// sips -s format tiff tamil.tiff --out .bmp
+
+fn tiff_to_png(source: &'static str, output: &'static str) -> bool {
+  let img = image::open( &Path::new(source) ).unwrap();
+  let ref mut fout = File::create( &Path::new(output) ).unwrap();
+  let _ = img.save( fout, image::PNG ).unwrap();
+  return true;
+}
 
 fn icon_to_png(source: &'static str, output: &'static str) -> bool {
   // Read binary data in to a buffer
@@ -44,5 +56,9 @@ fn main() {
   icon_to_png(
     "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericApplicationIcon.icns",
     "defaultIcon.png"
+  );
+  tiff_to_png(
+    "/System/Library/Input Methods/TamilIM.app/Contents/Resources/Tamil.tiff",
+    "meow.png"
   );
 }

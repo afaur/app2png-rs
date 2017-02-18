@@ -5,3 +5,4 @@ authors = ["Adam Faur <adam.faur@gmail.com>"]
 
 [dependencies]
 icns = "0.2.0"
+image = "0.12.3"
