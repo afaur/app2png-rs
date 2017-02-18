@@ -23,15 +23,17 @@ fn extract_bundle_icon(app: &'static str, output: &'static str) -> bool {
             app_path.clone() + "/Contents/Resources/" + file_path + ".icns",
             app_path.clone() + "/Contents/Resources/" + file_path + ".tiff",
           ];
-          for (_, ref possible_icon) in possible_icons.iter().enumerate() {
-            if Path::new(possible_icon.as_str()).exists() {
-              let ext = &possible_icon[possible_icon.len()-4..possible_icon.len()];
-              if ext == "tiff" {
-                return tiff_to_png(possible_icon, output);
-              } else {
-                return icon_to_png(possible_icon, output);
+          for possible_icon in possible_icons.iter() {
+            if Path::new(possible_icon).exists() {
+              let pi = String::from(possible_icon.as_ref());
+              match pi.find("tiff") {
+                Some(_) => {
+                  return tiff_to_png(pi, output);
+                },
+                None => {
+                  return icon_to_png(pi, output);
+                },
               }
-              break;
             }
           }
           return true;
@@ -47,16 +49,16 @@ fn extract_bundle_icon(app: &'static str, output: &'static str) -> bool {
   }
 }
 
-fn tiff_to_png(source: &'static str, output: &'static str) -> bool {
-  let img = image::open( &Path::new(source) ).unwrap();
+fn tiff_to_png(source: String, output: &'static str) -> bool {
+  let img = image::open( &Path::new(source.as_str()) ).unwrap();
   let ref mut fout = File::create( &Path::new(output) ).unwrap();
   let _ = img.save( fout, image::PNG ).unwrap();
   return true;
 }
 
-fn icon_to_png(source: &'static str, output: &'static str) -> bool {
+fn icon_to_png(source: String, output: &'static str) -> bool {
   // Read binary data in to a buffer
-  let file = BufReader::new( File::open(source).unwrap() );
+  let file = BufReader::new( File::open(source.as_str()).unwrap() );
 
   // Load an icon family from an ICNS file.
   let icon_family = IconFamily::read(file).unwrap();
@@ -91,15 +93,6 @@ fn icon_to_png(source: &'static str, output: &'static str) -> bool {
 }
 
 fn main() {
-  // Write the system icon
-  icon_to_png(
-    "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericApplicationIcon.icns",
-    "defaultIcon.png"
-  );
-  tiff_to_png(
-    "/System/Library/Input Methods/TamilIM.app/Contents/Resources/Tamil.tiff",
-    "meow.png"
-  );
   extract_bundle_icon(
     "/System/Library/Input Methods/TamilIM.app",
     "ruff.png"
