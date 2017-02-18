@@ -1,7 +1,21 @@
-#Getting Started
-- Install `rust`
-  - I recommend using https://www.rustup.rs/
-- Use rustup to install `rust` and `cargo` nightly
-  - run command: rustup install nighly
-- Clone this repo and cd into the directory
-  - run command: cargo run
+## Mac App to png
+
+Extract a Mac App's icon to a png file to be used.
+
+### Getting Started
+
+Install [rust](https://www.rust-lang.org/en-US/install.html), then you can build
+and run it.
+
+~~~
+cargo build
+~~~
+
+### Usage
+
+Point it to the path of the `.app` you wish to extract the icon from, and give
+it the path you want the icon saved.
+
+~~~
+cargo run /Applications/Zazu.app ~/Desktop/Zazu.png
+~~~
