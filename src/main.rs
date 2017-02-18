@@ -3,13 +3,15 @@ extern crate icns;
 extern crate plist;
 
 use icns::{IconFamily, IconType};
+use plist::Plist;
+
 use std::fs::File;
 use std::path::Path;
 use std::io::{BufReader, BufWriter};
-use plist::Plist;
+use std::env;
 
-fn extract_bundle_icon(app: &'static str, output: &'static str) -> bool {
-  let app_path = app.to_string();
+fn extract_bundle_icon(app: String, output: String) -> bool {
+  let app_path = app;
   let file = File::open(app_path.clone() + "/Contents/Info.plist").unwrap();
   let plist = Plist::read(file).unwrap();
 
@@ -50,14 +52,14 @@ fn extract_bundle_icon(app: &'static str, output: &'static str) -> bool {
   }
 }
 
-fn tiff_to_png(source: String, output: &'static str) -> bool {
+fn tiff_to_png(source: String, output: String) -> bool {
   let img = image::open( &Path::new(source.as_str()) ).unwrap();
-  let ref mut fout = File::create( &Path::new(output) ).unwrap();
+  let ref mut fout = File::create( &Path::new(&output) ).unwrap();
   let _ = img.save( fout, image::PNG ).unwrap();
   return true;
 }
 
-fn icon_to_png(source: String, output: &'static str) -> bool {
+fn icon_to_png(source: String, output: String) -> bool {
   // Read binary data in to a buffer
   let file = BufReader::new( File::open(source.as_str()).unwrap() );
 
@@ -80,7 +82,7 @@ fn icon_to_png(source: String, output: &'static str) -> bool {
     match icon {
         Ok(default_icon_image) => {
           // Create a png from the best quality icon
-          let default_icon_file = BufWriter::new( File::create(output).unwrap() );
+          let default_icon_file = BufWriter::new( File::create(&output).unwrap() );
 
           // Save the file locally
           default_icon_image.write_png(default_icon_file).unwrap();
@@ -94,8 +96,15 @@ fn icon_to_png(source: String, output: &'static str) -> bool {
 }
 
 fn main() {
-  extract_bundle_icon(
-    "/System/Library/Input Methods/TamilIM.app",
-    "ruff.png"
-  );
+  let args: Vec<_> = env::args().collect();
+  if args.len() == 3 {
+    let input: String = String::from(args[1].as_ref());
+    let output: String = String::from(args[2].as_ref());
+    extract_bundle_icon(
+      input,
+      output,
+    );
+  } else {
+    println!("This program expects two arguments.");
+  }
 }
