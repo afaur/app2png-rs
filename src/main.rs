@@ -1,12 +1,51 @@
 extern crate image;
 extern crate icns;
+extern crate plist;
 
 use icns::{IconFamily, IconType};
 use std::fs::File;
 use std::path::Path;
 use std::io::{BufReader, BufWriter};
+use plist::Plist;
 
-// sips -s format tiff tamil.tiff --out .bmp
+fn extract_bundle_icon(app: &'static str, output: &'static str) -> bool {
+  let app_path = app.to_string();
+  let file = File::open(app_path.clone() + "/Contents/Info.plist").unwrap();
+  let plist = Plist::read(file).unwrap();
+
+  match plist {
+    Plist::Dictionary(data) => {
+      match data["CFBundleIconFile"] {
+        Plist::String(ref file) => {
+          let file_path = file.as_str();
+          let possible_icons = vec![
+            app_path.clone() + "/Contents/Resources/" + file_path,
+            app_path.clone() + "/Contents/Resources/" + file_path + ".icns",
+            app_path.clone() + "/Contents/Resources/" + file_path + ".tiff",
+          ];
+          for (_, ref possible_icon) in possible_icons.iter().enumerate() {
+            if Path::new(possible_icon.as_str()).exists() {
+              let ext = &possible_icon[possible_icon.len()-4..possible_icon.len()];
+              if ext == "tiff" {
+                return tiff_to_png(possible_icon, output);
+              } else {
+                return icon_to_png(possible_icon, output);
+              }
+              break;
+            }
+          }
+          return true;
+        },
+        _ => {
+          return false;
+        },
+      };
+    },
+    _ => {
+      return false;
+    }
+  }
+}
 
 fn tiff_to_png(source: &'static str, output: &'static str) -> bool {
   let img = image::open( &Path::new(source) ).unwrap();
@@ -60,5 +99,9 @@ fn main() {
   tiff_to_png(
     "/System/Library/Input Methods/TamilIM.app/Contents/Resources/Tamil.tiff",
     "meow.png"
+  );
+  extract_bundle_icon(
+    "/System/Library/Input Methods/TamilIM.app",
+    "ruff.png"
   );
 }
