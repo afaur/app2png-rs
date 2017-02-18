@@ -3,7 +3,7 @@ use icns::{IconFamily, IconType};
 use std::fs::File;
 use std::io::{BufReader, BufWriter};
 
-fn icon_to_png(source: &str, output: &str) -> bool {
+fn icon_to_png(source: &'static str, output: &'static str) -> bool {
   // Read binary data in to a buffer
   let file = BufReader::new( File::open(source).unwrap() );
 
