@@ -26,7 +26,7 @@ fn extract_bundle_icon(app: &'static str, output: &'static str) -> bool {
           for possible_icon in possible_icons.iter() {
             if Path::new(possible_icon).exists() {
               let pi = String::from(possible_icon.as_ref());
-              match pi.find("tiff") {
+              match pi.find(".tiff") {
                 Some(_) => {
                   return tiff_to_png(pi, output);
                 },
@@ -35,6 +35,7 @@ fn extract_bundle_icon(app: &'static str, output: &'static str) -> bool {
                 },
               }
             }
+            break;
           }
           return true;
         },
