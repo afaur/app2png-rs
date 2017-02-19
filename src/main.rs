@@ -20,6 +20,9 @@ fn extract_bundle_icon(app_path: String, output: String) -> bool {
 
   match plist {
     Plist::Dictionary(data) => {
+      if !data.contains_key("CFBundleIconFile") {
+        return icon_to_png(default_app_icon, output);
+      }
       match data["CFBundleIconFile"] {
         Plist::String(ref file) => {
           let file_path = file.as_str();
@@ -42,7 +45,7 @@ fn extract_bundle_icon(app_path: String, output: String) -> bool {
             }
             break;
           }
-          return true;
+          return icon_to_png(default_app_icon, output);
         },
         _ => {
           return icon_to_png(default_app_icon, output);
@@ -50,7 +53,7 @@ fn extract_bundle_icon(app_path: String, output: String) -> bool {
       };
     },
     _ => {
-      return false;
+      return icon_to_png(default_app_icon, output);
     }
   }
 }
