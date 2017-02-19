@@ -12,7 +12,7 @@ use std::env;
 
 fn extract_bundle_icon(app_path: String, output: String) -> bool {
   let default_app_icon = String::from("/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericApplicationIcon.icns");
-  if !Path::new(&app_path).exists() {
+  if !Path::new(&String::from(app_path.clone() + "/Contents/Info.plist")).exists() {
     return icon_to_png(default_app_icon, output);
   }
   let file = File::open(app_path.clone() + "/Contents/Info.plist").unwrap();
