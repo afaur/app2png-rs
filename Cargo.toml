@@ -1,6 +1,6 @@
 [package]
 name = "app2png-rs"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Adam Faur <adam.faur@gmail.com>"]
 
 [dependencies]

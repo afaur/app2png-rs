@@ -10,8 +10,11 @@ use std::path::Path;
 use std::io::{BufReader, BufWriter};
 use std::env;
 
-fn extract_bundle_icon(app: String, output: String) -> bool {
-  let app_path = app;
+fn extract_bundle_icon(app_path: String, output: String) -> bool {
+  let default_app_icon = String::from("/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericApplicationIcon.icns");
+  if !Path::new(&app_path).exists() {
+    return icon_to_png(default_app_icon, output);
+  }
   let file = File::open(app_path.clone() + "/Contents/Info.plist").unwrap();
   let plist = Plist::read(file).unwrap();
 
@@ -42,7 +45,7 @@ fn extract_bundle_icon(app: String, output: String) -> bool {
           return true;
         },
         _ => {
-          return false;
+          return icon_to_png(default_app_icon, output);
         },
       };
     },
