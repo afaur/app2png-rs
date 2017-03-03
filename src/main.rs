@@ -12,7 +12,7 @@ use std::env;
 
 fn extract_bundle_icon(app_path: String, output: String) -> bool {
   let default_app_icon = String::from("/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericApplicationIcon.icns");
-  if !Path::new(&app_path).exists() {
+  if !Path::new(&String::from(app_path.clone() + "/Contents/Info.plist")).exists() {
     return icon_to_png(default_app_icon, output);
   }
   let file = File::open(app_path.clone() + "/Contents/Info.plist").unwrap();
@@ -20,6 +20,9 @@ fn extract_bundle_icon(app_path: String, output: String) -> bool {
 
   match plist {
     Plist::Dictionary(data) => {
+      if !data.contains_key("CFBundleIconFile") {
+        return icon_to_png(default_app_icon, output);
+      }
       match data["CFBundleIconFile"] {
         Plist::String(ref file) => {
           let file_path = file.as_str();
@@ -42,7 +45,7 @@ fn extract_bundle_icon(app_path: String, output: String) -> bool {
             }
             break;
           }
-          return true;
+          return icon_to_png(default_app_icon, output);
         },
         _ => {
           return icon_to_png(default_app_icon, output);
@@ -50,7 +53,7 @@ fn extract_bundle_icon(app_path: String, output: String) -> bool {
       };
     },
     _ => {
-      return false;
+      return icon_to_png(default_app_icon, output);
     }
   }
 }
